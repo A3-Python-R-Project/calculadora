@@ -1,3 +1,4 @@
+#Importando o tkinter, uma biblioteca gráfica padrão do Python, tornando possível criar a janela da calculadora
 from tkinter import *
 from tkinter import ttk
 
@@ -25,37 +26,48 @@ frame_corpo = Frame(janela, width=235, height=268)
 frame_corpo.grid(row=1, column=0)
 
 #Funções
-input_atual = ""
-resultado = 0
+input_atual = "" #Caracteres que estão na label no momento
+resultado = 0 #Resultado final da conta
 
-def pressionar_botao(number):
+def pressionar_botao(number): #Faz o botão aparecer na label assim que clica em algum botão
+    global input_atual #global é utilizado para se referenciar a uma variável fora do local
+    input_atual += str(number) #str é utilizado para transformar um tipo em String
+    atualizar_display() #Função criada para atualizar o display
+    
+def clear_display(): #Limpa o label
     global input_atual
-    input_atual += str(number)
+    input_atual = "" #Declara que input_atual é vazio, ou seja, demos clear
     atualizar_display()
 
-def clear_display():
-    global input_atual
-    input_atual = ""
-    atualizar_display()
-
-def calcular():
+def calcular(): #Calcula o resultado dependendo dos operadores
     global input_atual, resultado
     try:
-        expressao = input_atual.replace('x', '*')
-        if expressao[-1] in ['+', '-', '*', '/']:
+        expressao = input_atual.replace('x', '*') #replace serve para que, na hora de imprimir, o primeiro caractere chamado seja trocado pelo segundo
+
+        if expressao[-1] in ['+', '-', '*', '/']: #Condição para a calculadora funcionar mesmo se tiver mais algum operador depois da conta não finalizada (ex: 9+9+=18)
             expressao = expressao[:-1]
-        resultado = str(eval(expressao))
-        input_atual = resultado
-        atualizar_display()
-    except Exception as e:
-        input_atual = "Deu ruim"
+
+        if '%' in expressao: #Condição para criar a conta da porcentagem, já que em Python não há um cálculo automático para o operador "%"
+            numero_sem_porcentagem = expressao.split('%')
+            numero = float(numero_sem_porcentagem[0])
+            porcentagem = float(numero_sem_porcentagem[1])
+            resultado = (numero * porcentagem) / 100
+
+        else: #Caso contrário, o resultado será imprimido (no caso de qualquer operador, menos o "%")
+            resultado = str(eval(expressao))
+
+        input_atual = resultado #No final, o input_atual se tornará no resultado, ou seja: o resultado aparecerá na label da calculadora
         atualizar_display()
 
-def atualizar_display():
-    valor_texto.set(input_atual)
+    except Exception as e: #Exceção criada caso dê algum erro de sintaxe e etc
+        input_atual = "Deu ruim" #Mensagem que aparecerá em caso de erro
+        atualizar_display()
+
+def atualizar_display(): #Função criada para atualizar o display, ou seja, o que aparece na label
+    valor_texto.set(input_atual) #valor_texto foi criado para converter qualquer operador para o tipo String
 
 #Label
-valor_texto = StringVar()
+valor_texto = StringVar() #Criando uma variável do tipo String para os operadores serem impressos na label
 
 app_label = Label(frame_tela, textvariable=valor_texto, width=16, height=2, padx=7, relief=FLAT, anchor="e", justify=RIGHT, font=('Ivy 18'), bg=black, fg=white)
 app_label.place(x=0, y=0)
